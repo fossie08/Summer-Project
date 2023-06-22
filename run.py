@@ -5,10 +5,8 @@ class Program:
     """Hauted House Program
     By: Lucas Bates
     Version: 2.2.1
-    FUNCTIONS
     """
-
-
+    
     def Red(self):
         Console.ForegroundColor = ConsoleColor.Red
         return fn_return_value
@@ -369,30 +367,31 @@ class Program:
                     self.DarkRed()
                     Console.WriteLine(String(value='You hear a gloomy voice call \'') + pronoun(playerGender) + String(value=' will stay here forever...\''))
                 self.DarkGray()
+                
             #check if the player has the required key to unlock the room
-            assert False, '# UNTRANSLATED VB LINE #358 [Select inventory]'
-            assert False, '# UNTRANSLATED VB LINE #359 [Case 3 'Dungeon Key]'
-            if playerInput == Integer(6) and programEnd == Integer(0) and roomLocked(Integer(6)) == Integer(1):
-                Console.ForegroundColor = ConsoleColor.DarkGreen
-                Console.WriteLine(String(value='Your key fits into the door lock. You turn it and hear a click.'))
-                roomLocked[Integer(6)] = Integer(0)
-                self.Blank()
-                self.DarkGray()
-            assert False, '# UNTRANSLATED VB LINE #368 [Case 4 'Closet Key]'
-            if playerInput == Integer(8) and programEnd == Integer(0) and roomLocked(Integer(8)) == Integer(1):
-                Console.ForegroundColor = ConsoleColor.DarkGreen
-                Console.WriteLine(String(value='Your key fits into the door lock. You turn it and hear a click.'))
-                roomLocked[Integer(8)] = Integer(0)
-                self.Blank()
-                self.DarkGray()
-            assert False, '# UNTRANSLATED VB LINE #377 [Case 5 'Bedroom Key]'
-            if playerInput == Integer(13) and programEnd == Integer(0) and roomLocked(Integer(13)) == Integer(1):
-                Console.ForegroundColor = ConsoleColor.DarkGreen
-                Console.WriteLine(String(value='Your key fits into the door lock. You turn it and hear a click.'))
-                roomLocked[Integer(13)] = Integer(0)
-                self.Blank()
-                self.DarkGray()
-            assert False, '# UNTRANSLATED VB LINE #385 [End Select]'
+            match inventory:
+                case 3:
+                    if playerInput == Integer(6) and programEnd == Integer(0) and roomLocked(Integer(6)) == Integer(1):
+                        Console.ForegroundColor = ConsoleColor.DarkGreen
+                        Console.WriteLine(String(value='Your key fits into the door lock. You turn it and hear a click.'))
+                        roomLocked[Integer(6)] = Integer(0)
+                        self.Blank()
+                        self.DarkGray()
+                case 4: 
+                    if playerInput == Integer(8) and programEnd == Integer(0) and roomLocked(Integer(8)) == Integer(1):
+                        Console.ForegroundColor = ConsoleColor.DarkGreen
+                        Console.WriteLine(String(value='Your key fits into the door lock. You turn it and hear a click.'))
+                        roomLocked[Integer(8)] = Integer(0)
+                        self.Blank()
+                        self.DarkGray()
+                case 5:
+                    if playerInput == Integer(13) and programEnd == Integer(0) and roomLocked(Integer(13)) == Integer(1):
+                        Console.ForegroundColor = ConsoleColor.DarkGreen
+                        Console.WriteLine(String(value='Your key fits into the door lock. You turn it and hear a click.'))
+                        roomLocked[Integer(13)] = Integer(0)
+                        self.Blank()
+                        self.DarkGray()
+
             #If player entered 0-18
             assert False, '# UNTRANSLATED VB LINE #388 [If playerInput>=0 And programEnd=0 And playerInput<=18 Then]'
             #check if room locked
