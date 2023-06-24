@@ -6,6 +6,7 @@ class Room:
         self.description = description
         self.items = []
         self.monsters = []
+        self.adjacent_rooms = []
 
     def add_item(self, item):
         self.items.append(item)
@@ -33,25 +34,30 @@ class Monster:
 
 def main():
     # Create rooms
-    room1 = Room("Room 1", "You are in a dark room.")
-    room2 = Room("Room 2", "You enter a large hall.")
-    room3 = Room("Room 3", "You find yourself in a narrow corridor.")
+    dungeon = Room("Dungeon", "You are in a dark room. The smell of something vile fills your nostrils.")
+    hall = Room("Hall", "You enter a large hall. The walls are damp and peeling.")
+    corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.")
+
+    # Define Adjacent Rooms
+    dungeon.adjacent_rooms = [hall,corridor]
+    hall.adjacent_rooms = [dungeon]
+    corridor.adjacent_rooms = [dungeon]
 
     # Create items
-    item1 = Item("Key", "A rusty old key.")
-    item2 = Item("Sword", "A sharp sword.")
+    key = Item("Key", "A rusty old key.")
+    sword = Item("Sword", "A sharp sword.")
 
     # Create monsters
-    monster1 = Monster("Goblin", "A small and vicious creature.", 20, 5)
-    monster2 = Monster("Dragon", "A fire-breathing dragon!", 100, 20)
+    goblin = Monster("Goblin", "A small and vicious creature.", 20, 5)
+    dragon = Monster("Dragon", "A fire-breathing dragon!", 100, 20)
 
     # Add items and monsters to rooms
-    room1.add_item(item1)
-    room2.add_item(item2)
-    room3.add_monster(monster1)
-    room3.add_monster(monster2)
+    dungeon.add_item(key)
+    hall.add_item(sword)
+    corridor.add_monster(goblin)
+    corridor.add_monster(dragon)
 
-    current_room = room1
+    current_room = dungeon
     player_health = 100
 
     while True:
@@ -70,8 +76,10 @@ def main():
         print("4. Quit")
         choice = input("Enter your choice: ")
         if choice == "1":
-            rooms = [room1, room2, room3]
-            current_room = random.choice(rooms)
+            rooms = current_room.adjacent_rooms
+            for i in rooms:
+                print(i)
+
         elif choice == "2":
             item_choice = input("Enter the name of the item you want to pick up: ")
             for item in current_room.items:
