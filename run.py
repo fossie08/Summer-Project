@@ -1,4 +1,30 @@
-import random
+import random #Allows generation of random numbers/choices
+import os #Allows clearing of the terminal
+
+class col: #Allows formatting of text
+    reset = '\033[0m'
+    bold = '\033[01m'
+    disable = '\033[02m'
+    underline = '\033[04m'
+    reverse = '\033[07m'
+    strikethrough = '\033[09m'
+    invisible = '\033[08m'
+    black = '\033[30m'
+    red = '\033[31m'
+    green = '\033[32m'
+    orange = '\033[33m'
+    blue = '\033[34m'
+    purple = '\033[35m'
+    cyan = '\033[36m'
+    grey = '\033[37m'
+    darkgrey = '\033[90m'
+    lightred = '\033[91m'
+    lightgreen = '\033[92m'
+    yellow = '\033[93m'
+    lightblue = '\033[94m'
+    pink = '\033[95m'
+    lightcyan = '\033[96m'
+
 
 class Room:
     def __init__(self, name, description):
@@ -32,6 +58,9 @@ class Monster:
         self.health = health
         self.damage = damage
 
+def clear():
+    os.system('cls||clear')
+
 def main():
     # Create rooms
     dungeon = Room("Dungeon", "You are in a dark room. The smell of something vile fills your nostrils.")
@@ -60,36 +89,61 @@ def main():
     current_room = dungeon
     player_health = 100
 
+    clear()
     while True:
         print(f"\n{current_room.name}")
-        print(current_room.description)
-        print("Items in the room:")
+        print(col.grey + current_room.description + col.reset)
+
+        print("\nItems in the room:")
         for item in current_room.items:
-            print(item.name)
-        print("Monsters in the room:")
+            print(col.lightblue + item.name + col.reset)
+        if current_room.items == []:
+            print(col.grey + "None" + col.reset)
+
+        print("\nMonsters in the room:")
         for monster in current_room.monsters:
-            print(monster.name)
+            print(col.red + monster.name + col.reset)
+        if current_room.monsters == []:
+            print(col.grey + "None" + col.reset)
+
+        rooms = current_room.adjacent_rooms
+        print("\nRooms you can go to:" + col.reset)
+        for i in rooms:
+            print(col.lightblue + i.name + col.reset)
+
         print("\nWhat would you like to do?")
-        print("1. Move to another room")
+        print(col.grey + "1. Move to another room")
         print("2. Pick up an item")
         print("3. Attack a monster")
-        print("4. Quit")
-        choice = input("Enter your choice: ")
+        print("4. Quit" + col.reset)
+        choice = input("\nEnter your choice: ")
+
         if choice == "1":
-            rooms = current_room.adjacent_rooms
+            room_choice = input("Enter the name of the room you wish to go to: ")
             for i in rooms:
-                print(i)
+                if i.name.lower() == room_choice.lower():
+                    current_room = i
+                    clear()
+                    break
+            else:
+                clear()
+                print(col.red + "You can't go to that room." + col.reset)
+
 
         elif choice == "2":
             item_choice = input("Enter the name of the item you want to pick up: ")
+            clear()
             for item in current_room.items:
                 if item.name.lower() == item_choice.lower():
                     current_room.remove_item(item)
                     print(f"You picked up the {item.name}.")
                     break
             else:
-                print("That item is not in the room.")
+                clear()
+                print(col.red + "That item is not in the room." + col.reset)
+
         elif choice == "3":
+            clear()
             if len(current_room.monsters) > 0:
                 monster = random.choice(current_room.monsters)
                 print(f"You attack the {monster.name}!")
@@ -100,12 +154,15 @@ def main():
                 else:
                     print(f"The {monster.name} has {monster.health} health remaining.")
             else:
-                print("There are no monsters in the room.")
+                print(col.red + "There are no monsters in the room." + col.reset)
+
         elif choice == "4":
-            print("Goodbye!")
+            clear()
+            print(col.lightblue + "Goodbye!")
             break
         else:
-            print("Invalid choice. Please try again.")
+            clear()
+            print(col.red + "Invalid choice. Please try again." + col.reset)
 
         if player_health <= 0:
             print("Game over. You have died.")
