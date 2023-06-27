@@ -1,6 +1,12 @@
 import random #Allows generation of random numbers/choices
 import os #Allows clearing of the terminal
-
+try:
+    os.mknod('config.toml')
+except:
+    print('Config file already generated')
+#######################################
+#Perhaps use a configuration file and saves that are unique?????#
+#######################################
 class col: #Allows formatting of text
     reset = '\033[0m'
     bold = '\033[01m'
