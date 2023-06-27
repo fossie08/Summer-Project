@@ -1,12 +1,44 @@
 import random #Allows generation of random numbers/choices
 import os #Allows clearing of the terminal
-try:
-    os.mknod('config.toml')
-except:
-    print('Config file already generated')
-#######################################
-#Perhaps use a configuration file and saves that are unique?????#
-#######################################
+import pickle #saving of the game
+
+save_filename = 'game_state.pkl'
+
+def save_game_state(current_room, player_health):
+    game_state = {
+        'current_room': current_room,
+        'player_health': player_health,
+        'items': current_room.items,
+        'monster_health': [monster.health for monster in current_room.monsters]
+    }
+
+    with open(save_filename, 'wb') as save_file:
+        pickle.dump(game_state, save_file)
+
+
+def load_game_state():
+    try:
+        with open(save_filename, 'rb') as save_file:
+            game_state = pickle.load(save_file)
+        current_room = game_state['current_room']
+        player_health = game_state['player_health']
+        items = game_state['items']
+        monster_health = game_state['monster_health']
+
+        # Update the current room's items
+        for item in items:
+            current_room.add_item(item)
+
+        # Update the monster health in the current room
+        for i, monster in enumerate(current_room.monsters):
+            monster.health = monster_health[i]
+
+        return current_room, player_health
+    except FileNotFoundError:
+        return None, None
+
+
+
 class col: #Allows formatting of text
     reset = '\033[0m'
     bold = '\033[01m'
@@ -68,34 +100,39 @@ def clear():
     os.system('cls||clear')
 
 def main():
-    # Create rooms
-    dungeon = Room("Dungeon", "You are in a dark room. The smell of something vile fills your nostrils.")
-    hall = Room("Hall", "You enter a large hall. The walls are damp and peeling.")
-    corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.")
 
-    # Define Adjacent Rooms
-    dungeon.adjacent_rooms = [hall,corridor]
-    hall.adjacent_rooms = [dungeon]
-    corridor.adjacent_rooms = [dungeon]
-
-    # Create items
-    key = Item("Key", "A rusty old key.")
-    sword = Item("Sword", "A sharp sword.")
-
-    # Create monsters
-    goblin = Monster("Goblin", "A small and vicious creature.", 20, 5)
-    dragon = Monster("Dragon", "A fire-breathing dragon!", 100, 20)
-
-    # Add items and monsters to rooms
-    dungeon.add_item(key)
-    hall.add_item(sword)
-    corridor.add_monster(goblin)
-    corridor.add_monster(dragon)
-
-    current_room = dungeon
-    player_health = 100
-
+    current_room, player_health = load_game_state()
     clear()
+    
+    if current_room is None or player_health is None:
+        # Create rooms
+        dungeon = Room("Dungeon", "You are in a dark room. The smell of something vile fills your nostrils.")
+        hall = Room("Hall", "You enter a large hall. The walls are damp and peeling.")
+        corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.")
+
+        # Define Adjacent Rooms
+        dungeon.adjacent_rooms = [hall,corridor]
+        hall.adjacent_rooms = [dungeon]
+        corridor.adjacent_rooms = [dungeon]
+
+        # Create items
+        key = Item("Key", "A rusty old key.")
+        sword = Item("Sword", "A sharp sword.")
+
+        # Create monsters
+        goblin = Monster("Goblin", "A small and vicious creature.", 20, 5)
+        dragon = Monster("Dragon", "A fire-breathing dragon!", 100, 20)
+
+        # Add items and monsters to rooms
+        dungeon.add_item(key)
+        hall.add_item(sword)
+        corridor.add_monster(goblin)
+        corridor.add_monster(dragon)
+
+        current_room = dungeon
+        player_health = 100
+
+        clear()
     while True:
         print(f"\n{current_room.name}")
         print(col.grey + current_room.description + col.reset)
@@ -164,7 +201,8 @@ def main():
 
         elif choice == "4":
             clear()
-            print(col.lightblue + "Goodbye!")
+            save_game_state(current_room, player_health)
+            print(col.lightblue + "Game saved. Goodbye!")
             break
         else:
             clear()
