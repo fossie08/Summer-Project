@@ -86,9 +86,10 @@ class Room:
         self.monsters.remove(monster)
 
 class Item:
-    def __init__(self, name, description):
+    def __init__(self, name, description, damage=0):
         self.name = name
         self.description = description
+        self.damage = damage
 
 class Key(Item):
     def __init__(self, name, description, room_to_unlock):
@@ -111,6 +112,7 @@ class Player:
         self.health = health
         self.inventory = []
         self.keys = []
+        self.damage = 5
 
     def take_damage(self, damage):
         self.health -= damage
@@ -146,7 +148,7 @@ def main(player):
         # Create rooms
         dungeon = Room("Dungeon", "You are in a dark room. The smell of something vile fills your nostrils.")
         hall = Room("Hall", "You enter a large hall. The walls are damp and peeling.")
-        corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.", locked=True)
+        corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.", locked=False)
 
         # Define Adjacent Rooms
         dungeon.adjacent_rooms = [hall,corridor]
@@ -154,7 +156,7 @@ def main(player):
         corridor.adjacent_rooms = [dungeon]
 
         # Create items
-        sword = Item("Sword", "A sharp sword.")
+        sword = Item("Sword", "A sharp sword.", 10)
 
         # create keys
         corridor_key = Key("Corridor Key", "A key that unlocks the corridor", room_to_unlock=corridor)
@@ -192,7 +194,10 @@ def main(player):
         rooms = current_room.adjacent_rooms
         print("\nRooms you can go to:" + col.reset)
         for i in rooms:
-            print(col.lightblue + i.name + col.reset)
+            if i.locked and not player.has_key(i):
+                print(col.grey + i.name + col.red + " [Locked]" + col.reset)
+            else:
+                print(col.lightblue + i.name + col.reset)
 
         print("\nWhat would you like to do?")
         print(col.grey + "1. Move to another room")
@@ -208,7 +213,9 @@ def main(player):
             for i in rooms:
                 if i.name.lower() == room_choice.lower():
                     if i.locked and not player.has_key(i):
+                        clear()
                         print(col.red + "The room is locked. You need a key to unlock it." + col.reset)
+                        break
                     else:
                         current_room = i
                         clear()
@@ -218,42 +225,45 @@ def main(player):
                 print(col.red + "You can't go to that room." + col.reset)
 
         elif choice == "2":
-            clear()
-            print("Items in the room:")
-            for item in current_room.items:
-                print(col.lightblue + item.name + col.reset)
-            item_choice = input("Enter the name of the item you want to pick up: ")
-            clear()
-            for item in current_room.items:
-                if item.name.lower() == item_choice.lower():
-                    if item.name == "Poisonous Mushroom":
-                        print("You picked up the Poisonous Mushroom. It harms you!")
-                        player.take_damage(10)
-                        print(f"You took 10 damage. Your health is now {player.health}.")
-                    elif isinstance(item, Key):
-                        player.add_key_to_inventory(item)
-                        current_room.remove_item(item)
-                        print(f"You picked up the {item.name}.")
-                    else:
-                        player.add_item_to_inventory(item)
-                        current_room.remove_item(item)
-                        print(f"You picked up the {item.name}.")
-                    break
+            if current_room.items != []:
+                item_choice = input("Enter the name of the item you want to pick up: ")
+                clear()
+                for item in current_room.items:
+                    if item.name.lower() == item_choice.lower():
+                        if item.name == "Poisonous Mushroom":
+                            print("You picked up the Poisonous Mushroom. It harms you!")
+                            player.take_damage(10)
+                            print(f"You took 10 damage. Your health is now {player.health}.")
+                        elif isinstance(item, Key):
+                            player.add_key_to_inventory(item)
+                            current_room.remove_item(item)
+                            print(f"You picked up the {item.name}.")
+                        else:
+                            player.add_item_to_inventory(item)
+                            current_room.remove_item(item)
+                            print(f"You picked up the {item.name}.")
+                        break
+                else:
+                    clear()
+                    print(col.red + "That item is not in the room." + col.reset)
             else:
                 clear()
-                print(col.red + "That item is not in the room." + col.reset)
+                print(col.red + "There are no items in this room." + col.reset)
 
         elif choice == "3":
+            damage_from_player = player.damage
+            for i in player.inventory:
+                damage_from_player += i.damage
             clear()
             if len(current_room.monsters) > 0:
                 monster = random.choice(current_room.monsters)
                 print(f"You attack the {monster.name}!")
-                monster.health -= random.randint(10, 20)
+                monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
                 if monster.health <= 0:
                     print(f"You defeated the {monster.name}!")
                     current_room.remove_monster(monster)
                 else:
-                    print(f"The {monster.name} has {monster.health} health remaining.")
+                    print(f"The {monster.name} has {col.red}{monster.health}{col.reset} health remaining.")
             else:
                 print(col.red + "There are no monsters in the room." + col.reset)
 
@@ -263,8 +273,7 @@ def main(player):
             if len(player.inventory) > 0:
                 print("Items:")
                 for item in player.inventory:
-                    if isinstance(item, Key):
-                        print(col.lightblue + item.name + col.reset)
+                    print(col.lightblue + item.name + col.reset)
             else:
                 print(col.grey + "Empty" + col.reset)
 
