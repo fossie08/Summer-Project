@@ -95,6 +95,24 @@ class Monster:
         self.description = description
         self.health = health
         self.damage = damage
+        
+class Player:
+    def __init__(self, health):
+        self.health = health
+        self.inventory = []
+
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.health <= 0:
+            print("Game over. You have died.")
+            # Additional actions or game over logic can be added here
+            exit()
+
+    def add_item_to_inventory(self, item):
+        self.inventory.append(item)
+
+    def remove_item_from_inventory(self, item):
+        self.inventory.remove(item)
 
 def clear():
     os.system('cls||clear')
@@ -158,7 +176,9 @@ def main():
         print(col.grey + "1. Move to another room")
         print("2. Pick up an item")
         print("3. Attack a monster")
-        print("4. Quit" + col.reset)
+        print("4. View inventory")
+        print("5. Use an item")
+        print("6. Quit" + col.reset)
         choice = input("\nEnter your choice: ")
 
         if choice == "1":
@@ -178,8 +198,13 @@ def main():
             clear()
             for item in current_room.items:
                 if item.name.lower() == item_choice.lower():
-                    current_room.remove_item(item)
-                    print(f"You picked up the {item.name}.")
+                    if item.name == "Poisonous Mushroom":
+                        print("You picked up the Poisonous Mushroom. It harms you!")
+                        player.take_damage(10)
+                        print(f"You took 10 damage. Your health is now {player.health}.")
+                    else:
+                        player.add_item_to_inventory(item)
+                        print(f"You picked up the {item.name}.")
                     break
             else:
                 clear()
@@ -200,6 +225,33 @@ def main():
                 print(col.red + "There are no monsters in the room." + col.reset)
 
         elif choice == "4":
+            clear()
+            print("Inventory:")
+            if len(player.inventory) > 0:
+                for item in player.inventory:
+                    print(col.lightblue + item.name + col.reset)
+            else:
+                print(col.grey + "Empty" + col.reset)
+
+        elif choice == "5":
+            clear()
+            print("Inventory:")
+            if len(player.inventory) > 0:
+                for i, item in enumerate(player.inventory):
+                    print(f"{i+1}. {item.name}")
+                item_choice = input("Enter the number of the item you want to use: ")
+                if item_choice.isdigit() and 1 <= int(item_choice) <= len(player.inventory):
+                    item_index = int(item_choice) - 1
+                    item = player.inventory[item_index]
+                    # Add item usage logic here
+                    print(f"You used the {item.name}.")
+                    player.remove_item_from_inventory(item)
+                else:
+                    print(col.red + "Invalid item choice." + col.reset)
+            else:
+                print(col.grey + "Inventory is empty." + col.reset)
+
+        elif choice == "6":
             clear()
             save_game_state(current_room, player_health)
             print(col.lightblue + "Game saved. Goodbye!")
