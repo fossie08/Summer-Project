@@ -65,12 +65,13 @@ class col: #Allows formatting of text
 
 
 class Room:
-    def __init__(self, name, description):
+    def __init__(self, name, description, locked=False):
         self.name = name
         self.description = description
         self.items = []
         self.monsters = []
         self.adjacent_rooms = []
+        self.locked = locked
 
     def add_item(self, item):
         self.items.append(item)
@@ -89,6 +90,15 @@ class Item:
         self.name = name
         self.description = description
 
+class Key(Item):
+    def __init__(self, name, description, room_to_unlock):
+        super().__init__(name, description) # Call the constructor of the superclass to initialize the 'name' and 'description' attributes
+
+        self.room_to_unlock = room_to_unlock
+
+    def unlock_room(self):
+        self.room_to_unlock.locked = False
+
 class Monster:
     def __init__(self, name, description, health, damage):
         self.name = name
@@ -100,6 +110,7 @@ class Player:
     def __init__(self, health):
         self.health = health
         self.inventory = []
+        self.keys = []
 
     def take_damage(self, damage):
         self.health -= damage
@@ -114,10 +125,19 @@ class Player:
     def remove_item_from_inventory(self, item):
         self.inventory.remove(item)
 
+    def add_key_to_inventory(self, key):
+        self.keys.append(key)
+
+    def has_key(self, room):
+        for key in self.keys:
+            if key.room_to_unlock == room:
+                return True
+        return False
+
 def clear():
     os.system('cls||clear')
 
-def main():
+def main(player):
 
     current_room, player_health = load_game_state()
     clear()
@@ -126,7 +146,7 @@ def main():
         # Create rooms
         dungeon = Room("Dungeon", "You are in a dark room. The smell of something vile fills your nostrils.")
         hall = Room("Hall", "You enter a large hall. The walls are damp and peeling.")
-        corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.")
+        corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.", locked=True)
 
         # Define Adjacent Rooms
         dungeon.adjacent_rooms = [hall,corridor]
@@ -134,15 +154,17 @@ def main():
         corridor.adjacent_rooms = [dungeon]
 
         # Create items
-        key = Item("Key", "A rusty old key.")
         sword = Item("Sword", "A sharp sword.")
+
+        # create keys
+        corridor_key = Key("Corridor Key", "A key that unlocks the corridor", room_to_unlock=corridor)
 
         # Create monsters
         goblin = Monster("Goblin", "A small and vicious creature.", 20, 5)
         dragon = Monster("Dragon", "A fire-breathing dragon!", 100, 20)
 
         # Add items and monsters to rooms
-        dungeon.add_item(key)
+        hall.add_item(corridor_key)
         hall.add_item(sword)
         corridor.add_monster(goblin)
         corridor.add_monster(dragon)
@@ -185,15 +207,21 @@ def main():
             room_choice = input("Enter the name of the room you wish to go to: ")
             for i in rooms:
                 if i.name.lower() == room_choice.lower():
-                    current_room = i
-                    clear()
-                    break
+                    if i.locked and not player.has_key(i):
+                        print(col.red + "The room is locked. You need a key to unlock it." + col.reset)
+                    else:
+                        current_room = i
+                        clear()
+                        break
             else:
                 clear()
                 print(col.red + "You can't go to that room." + col.reset)
 
-
         elif choice == "2":
+            clear()
+            print("Items in the room:")
+            for item in current_room.items:
+                print(col.lightblue + item.name + col.reset)
             item_choice = input("Enter the name of the item you want to pick up: ")
             clear()
             for item in current_room.items:
@@ -202,8 +230,13 @@ def main():
                         print("You picked up the Poisonous Mushroom. It harms you!")
                         player.take_damage(10)
                         print(f"You took 10 damage. Your health is now {player.health}.")
+                    elif isinstance(item, Key):
+                        player.add_key_to_inventory(item)
+                        current_room.remove_item(item)
+                        print(f"You picked up the {item.name}.")
                     else:
                         player.add_item_to_inventory(item)
+                        current_room.remove_item(item)
                         print(f"You picked up the {item.name}.")
                     break
             else:
@@ -228,10 +261,13 @@ def main():
             clear()
             print("Inventory:")
             if len(player.inventory) > 0:
+                print("Items:")
                 for item in player.inventory:
-                    print(col.lightblue + item.name + col.reset)
+                    if isinstance(item, Key):
+                        print(col.lightblue + item.name + col.reset)
             else:
                 print(col.grey + "Empty" + col.reset)
+
 
         elif choice == "5":
             clear()
@@ -253,9 +289,10 @@ def main():
 
         elif choice == "6":
             clear()
-            save_game_state(current_room, player_health)
+            save_game_state(current_room, player.health)  # Save player health instead of player_health
             print(col.lightblue + "Game saved. Goodbye!")
             break
+
         else:
             clear()
             print(col.red + "Invalid choice. Please try again." + col.reset)
@@ -265,4 +302,5 @@ def main():
             break
 
 if __name__ == "__main__":
-    main()
+    player = Player(100)
+    main(player)
