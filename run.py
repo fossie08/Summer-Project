@@ -148,7 +148,7 @@ def main(player):
         # Create rooms
         dungeon = Room("Dungeon", "You are in a dark room. The smell of something vile fills your nostrils.")
         hall = Room("Hall", "You enter a large hall. The walls are damp and peeling.")
-        corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.", locked=False)
+        corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.", locked=True)
 
         # Define Adjacent Rooms
         dungeon.adjacent_rooms = [hall,corridor]
