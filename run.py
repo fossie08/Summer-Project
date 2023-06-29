@@ -146,9 +146,25 @@ def main(player):
     
     if current_room is None or player_health is None:
         # Create rooms
-        dungeon = Room("Dungeon", "You are in a dark room. The smell of something vile fills your nostrils.")
-        hall = Room("Hall", "You enter a large hall. The walls are damp and peeling.")
-        corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.", locked=True)
+        ug_cabin = Room("Underground Cabin", "A dark, dirty underground room.")
+        ug_tunnel = Room("Underground Tunnel", "A dark, dirty underground tunnel.")
+        north_garden = Room("North Garden", "A small garden with a gravestone.")
+        landing_g = Room("Ground Floor Landing", "A small room with a coat hanger.")
+        dining = Room("Dining Room", "A small room with a wooden table that has rotten food atop it.")
+        dungeon = Room("Dungeon", "A dark, murky room. You can make out a dead skeleton.", Locked=True)
+        lounge = Room("Lounge", "A room with 2 armchairs and a log fire that went out long ago.")
+        clothng = Room("Clothing Room", "A small storage room with clothes hung on the walls.", Locked=True)
+        landing_f1 = Room("First Floor Landing", "A small, dark room. a cat scurries away as you enter.")
+        south_garden = Room("South Garden", "A garden with many trees and many gravestones.")
+        balcony_f2 = Room("Second Floor Landing", "A small balcony, looking out the front side of the house.")
+        landing_f2 = Room("Second Floor Landing", "A cobweb-filled room with a broken chandelier.")
+        bedroom = Room("Bedroom", "The master bedroom. a rotting woman is in the four-poster bed.", Locked=True)
+        bathroom = Room("Bathroom", "A small bathroom with a dripping tap.")
+        treasury = Room("Treasury", "A small room with a small, locked chest.")
+        chest_room = Room("Chest", "The small chest inside the treasury.")
+        balcony_f3 = Room("Third Floor Balcony", "a small balcony, looking out the south side of the house.")
+        attic = Room("Attic", "An old attic with a skeleton lying on a small table. a spider drops form the ceiling.")
+        roof = Room("Roof", "A flat area on the roof of the house.)
 
         # Define Adjacent Rooms
         dungeon.adjacent_rooms = [hall,corridor]
