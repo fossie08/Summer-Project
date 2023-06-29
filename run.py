@@ -148,7 +148,7 @@ def main(player):
         # Create rooms
         dungeon = Room("Dungeon", "You are in a dark room. The smell of something vile fills your nostrils.")
         hall = Room("Hall", "You enter a large hall. The walls are damp and peeling.")
-        corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.", locked=True)
+        corridor = Room("Corridor", "You find yourself in a narrow corridor. There are cobwebs almost everywhere you look.", locked=False)
 
         # Define Adjacent Rooms
         dungeon.adjacent_rooms = [hall,corridor]
@@ -252,11 +252,13 @@ def main(player):
 
         elif choice == "3":
             damage_from_player = player.damage
-            for i in player.inventory:
-                damage_from_player += i.damage
-            clear()
             if len(current_room.monsters) > 0:
-                monster = random.choice(current_room.monsters)
+                #monster = random.choice(current_room.monsters)
+                print('Which monster to attack?')
+                count = 1
+                for i in current_room.monsters:
+                    print(count,'. ', i)
+                monster = input()
                 print(f"You attack the {monster.name}!")
                 monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
                 if monster.health <= 0:
