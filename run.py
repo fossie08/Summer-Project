@@ -194,7 +194,7 @@ def main(player):
         dungeon.add_monster(goblin)
         dungeon.add_monster(dragon)
 
-        current_room = dungeon
+        current_room = landing_g
         player_health = 100
 
         clear()
