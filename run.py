@@ -257,8 +257,11 @@ def main(player):
                 print('Which monster to attack?')
                 count = 1
                 for i in current_room.monsters:
-                    print(count,'. ', i)
-                monster = input()
+                    print(count,'. ', i.name)
+                    count += 1
+                
+                monster = current_room.monsters[int(input())-1]
+                clear()
                 print(f"You attack the {monster.name}!")
                 monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
                 if monster.health <= 0:
