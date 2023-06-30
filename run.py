@@ -150,15 +150,15 @@ def main(player):
         ug_tunnel = Room("Underground Tunnel", "A dark, dirty underground tunnel.")
         landing_g = Room("Ground Floor Landing", "A small room with a coat hanger.")
         dining = Room("Dining Room", "A small room with a wooden table that has rotten food atop it.")
-        dungeon = Room("Dungeon", "A dark, murky room. You can make out a dead skeleton.", Locked=True)
+        dungeon = Room("Dungeon", "A dark, murky room. You can make out a dead skeleton.", locked=True)
         lounge = Room("Lounge", "A room with 2 armchairs and a log fire that went out long ago.")
-        clothing = Room("Clothing Room", "A small storage room with clothes hung on the walls.", Locked=True)
+        clothing = Room("Clothing Room", "A small storage room with clothes hung on the walls.", locked=True)
         landing_f1 = Room("First Floor Landing", "A small, dark room. a cat scurries away as you enter.")
         landing_f2 = Room("Second Floor Landing", "A cobweb-filled room with a broken chandelier.")
-        bedroom = Room("Bedroom", "The master bedroom. a rotting woman is in the four-poster bed.", Locked=True)
+        bedroom = Room("Bedroom", "The master bedroom. a rotting woman is in the four-poster bed.", locked=True)
         bathroom = Room("Bathroom", "A small bathroom with a dripping tap.")
         treasury = Room("Treasury", "A small room with a small, locked chest.")
-        chest_room = Room("Chest", "The small chest inside the treasury.", Locked=True)
+        chest_room = Room("Chest", "The small chest inside the treasury.", locked=True)
         attic = Room("Attic", "An old attic with a skeleton lying on a small table. a spider drops form the ceiling.")
 
         # Define Adjacent Rooms
@@ -182,17 +182,17 @@ def main(player):
         sword = Item("Sword", "A sharp sword.", 10)
 
         # create keys
-        corridor_key = Key("Corridor Key", "A key that unlocks the corridor", room_to_unlock=corridor)
+        dungeon_key = Key("Dungeon Key", "A key that unlocks the dungeon", room_to_unlock=dungeon)
 
         # Create monsters
         goblin = Monster("Goblin", "A small and vicious creature.", 20, 5)
         dragon = Monster("Dragon", "A fire-breathing dragon!", 100, 20)
 
         # Add items and monsters to rooms
-        hall.add_item(corridor_key)
-        hall.add_item(sword)
-        corridor.add_monster(goblin)
-        corridor.add_monster(dragon)
+        landing_g.add_item(dungeon_key)
+        landing_g.add_item(sword)
+        dungeon.add_monster(goblin)
+        dungeon.add_monster(dragon)
 
         current_room = dungeon
         player_health = 100
