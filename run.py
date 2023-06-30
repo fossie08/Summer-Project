@@ -275,11 +275,16 @@ def main(player):
 
         elif choice == "3":
             damage_from_player = player.damage
-            for i in player.inventory:
-                damage_from_player += i.damage
-            clear()
             if len(current_room.monsters) > 0:
-                monster = random.choice(current_room.monsters)
+                #monster = random.choice(current_room.monsters)
+                print('Which monster to attack?')
+                count = 1
+                for i in current_room.monsters:
+                    print(count,'. ', i.name)
+                    count += 1
+                
+                monster = current_room.monsters[int(input())-1]
+                clear()
                 print(f"You attack the {monster.name}!")
                 monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
                 if monster.health <= 0:
