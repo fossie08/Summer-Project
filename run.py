@@ -152,7 +152,7 @@ def main(player):
         dining = Room("Dining Room", "A small room with a wooden table that has rotten food atop it.")
         dungeon = Room("Dungeon", "A dark, murky room. You can make out a dead skeleton.", locked=True)
         lounge = Room("Lounge", "A room with 2 armchairs and a log fire that went out long ago.")
-        clothing = Room("Clothing Room", "A small storage room with clothes hung on the walls.", locked=True)
+        closet = Room("Closet", "A small storage room with clothes hung on the walls.", locked=True)
         landing_f1 = Room("First Floor Landing", "A small, dark room. a cat scurries away as you enter.")
         landing_f2 = Room("Second Floor Landing", "A cobweb-filled room with a broken chandelier.")
         bedroom = Room("Bedroom", "The master bedroom. a rotting woman is in the four-poster bed.", locked=True)
@@ -167,9 +167,9 @@ def main(player):
         landing_g.adjacent_rooms = [ug_tunnel, dining]
         dining.adjacent_rooms = [landing_g, dungeon, landing_f1]
         dungeon.adjacent_rooms = [dining]
-        lounge.adjacent_rooms = [landing_f1, clothing, bedroom,landing_f2]
-        clothing.adjacent_rooms = [lounge, landing_f2]
-        landing_f1.adjacent_rooms = [lounge, attic, clothing]
+        lounge.adjacent_rooms = [landing_f1, closet, bedroom,landing_f2]
+        closet.adjacent_rooms = [lounge, landing_f2]
+        landing_f1.adjacent_rooms = [lounge, attic, closet, dining]
         landing_f2.adjacent_rooms = [lounge,bedroom]
         bedroom.adjacent_rooms = [landing_f2, bathroom, lounge]
         bathroom.adjacent_rooms = [bedroom, attic]
