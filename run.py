@@ -74,10 +74,10 @@ class Room:
         self.locked = locked
 
     def add_item(self, item):
-        self.items.append(item)
+        self.items = self.items + item
 
     def add_monster(self, monster):
-        self.monsters.append(monster)
+        self.monsters = self.monsters + monster
 
     def remove_item(self, item):
         self.items.remove(item)
@@ -180,6 +180,8 @@ def main(player):
 
         # Create items
         sword = Item("Sword", "A sharp sword.", 10)
+        flint = Item("Flint", "A small, sharp piece of flint.", 5)
+        stone = Item("Stone", "A medium-sized stone.", 3)
 
         # create keys
         dungeon_key = Key("Dungeon Key", "A key that unlocks the dungeon", room_to_unlock=dungeon)
@@ -189,38 +191,71 @@ def main(player):
         dragon = Monster("Dragon", "A fire-breathing dragon!", 100, 20)
 
         # Add items and monsters to rooms
-        landing_g.add_item(dungeon_key)
-        landing_g.add_item(sword)
-        dungeon.add_monster(goblin)
-        dungeon.add_monster(dragon)
+        ug_cabin.add_item([stone])
+        ug_tunnel.add_item([flint])
+        landing_g.add_item([sword])
+        dining.add_item([dungeon_key])
+        dungeon.add_item([])
+        lounge.add_item([])
+        clothing.add_item([])
+        landing_f1.add_item([])
+        landing_f2.add_item([])
+        bedroom.add_item([])
+        bathroom.add_item([])
+        treasury.add_item([])
+        chest_room.add_item([])
+        attic.add_item([])
+
+        ug_cabin.add_monster([dragon])
+        ug_tunnel.add_monster([goblin])
+        landing_g.add_monster([])
+        dining.add_monster([])
+        dungeon.add_monster([])
+        lounge.add_monster([])
+        clothing.add_monster([])
+        landing_f1.add_monster([])
+        landing_f2.add_monster([])
+        bedroom.add_monster([])
+        bathroom.add_monster([])
+        treasury.add_monster([])
+        chest_room.add_monster([])
+        attic.add_monster([])
 
         current_room = landing_g
         player_health = 100
 
         clear()
     while True:
-        print(f"\n{current_room.name}")
+        print(f"{current_room.name}")
         print(col.grey + current_room.description + col.reset)
 
         print("\nItems in the room:")
+        c = 1
         for item in current_room.items:
-            print(col.lightblue + item.name + col.reset)
+            print(f"{col.lightblue}{c}. {item.name}{col.reset}")
+            c += 1
         if current_room.items == []:
             print(col.grey + "None" + col.reset)
 
         print("\nMonsters in the room:")
+        c = 1
         for monster in current_room.monsters:
-            print(col.red + monster.name + col.reset)
+            print(f"{col.red}{c}. {monster.name}{col.reset}")
+            c += 1
         if current_room.monsters == []:
             print(col.grey + "None" + col.reset)
 
         rooms = current_room.adjacent_rooms
         print("\nRooms you can go to:" + col.reset)
-        for i in rooms:
-            if i.locked and not player.has_key(i):
-                print(col.grey + i.name + col.red + " [Locked]" + col.reset)
+        c = 1
+        for room in rooms:
+            if room.locked and not player.has_key(room):
+                print(f"{col.grey}{c}. {room.name} {col.red}[Locked]{col.reset}")
+            elif room.locked and player.has_key(room):
+                print(f"{col.lightblue}{c}. {room.name} {col.green}[Unlocked]{col.reset}")
             else:
-                print(col.lightblue + i.name + col.reset)
+                print(f"{col.lightblue}{c}. {room.name}{col.reset}")
+            c += 1
 
         print("\nWhat would you like to do?")
         print(col.grey + "1. Move to another room")
@@ -232,12 +267,14 @@ def main(player):
         choice = input("\nEnter your choice: ")
 
         if choice == "1":
-            room_choice = input("Enter the name of the room you wish to go to: ")
+            print("Enter the number of the room you wish to go to: ", end="")
+            room_choice = current_room.adjacent_rooms[int(input())-1]
+            room_choice = room_choice.name
             for i in rooms:
                 if i.name.lower() == room_choice.lower():
                     if i.locked and not player.has_key(i):
                         clear()
-                        print(col.red + "The room is locked. You need a key to unlock it." + col.reset)
+                        print(col.red + "The room is locked. You need a key to unlock it.\n" + col.reset)
                         break
                     else:
                         current_room = i
@@ -245,15 +282,11 @@ def main(player):
                         break
             else:
                 clear()
-                print(col.red + "You can't go to that room." + col.reset)
+                print(col.red + "You can't go to that room.\n" + col.reset)
 
         elif choice == "2":
             if current_room.items != []:
-                print("Enter the number of the item you want to pick up: ")
-                count = 1
-                for i in current_room.items:
-                    print(count,'. ', i.name)
-                    count += 1
+                print("Enter the number of the item you want to pick up: ", end="")
                 item_choice = current_room.items[int(input())-1]
                 item_choice = item_choice.name
                 clear()
@@ -262,55 +295,62 @@ def main(player):
                         if item.name == "Poisonous Mushroom":
                             print("You picked up the Poisonous Mushroom. It harms you!")
                             player.take_damage(10)
-                            print(f"You took 10 damage. Your health is now {player.health}.")
+                            print(f"You took 10 damage. Your health is now {player.health}.\n")
                         elif isinstance(item, Key):
                             player.add_key_to_inventory(item)
                             current_room.remove_item(item)
-                            print(f"You picked up the {item.name}.")
+                            print(f"You picked up the {item.name}.\n")
                         else:
                             player.add_item_to_inventory(item)
                             current_room.remove_item(item)
-                            print(f"You picked up the {item.name}.")
+                            print(f"You picked up the {item.name}.\n")
                         break
                 else:
                     clear()
-                    print(col.red + "That item is not in the room." + col.reset)
+                    print(col.red + "That item is not in the room.\n" + col.reset)
             else:
                 clear()
-                print(col.red + "There are no items in this room." + col.reset)
+                print(col.red + "There are no items in this room.\n" + col.reset)
 
         elif choice == "3":
             damage_from_player = player.damage
             if len(current_room.monsters) > 0:
                 #monster = random.choice(current_room.monsters)
-                print('Which monster to attack?')
-                count = 1
-                for i in current_room.monsters:
-                    print(count,'. ', i.name)
-                    count += 1
-                
+                print('Enter the number of the monster you wish to attack: ', end="") 
                 monster = current_room.monsters[int(input())-1]
                 clear()
                 print(f"You attack the {monster.name}!")
                 monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
                 if monster.health <= 0:
-                    print(f"You defeated the {monster.name}!")
+                    print(f"You defeated the {monster.name}!\n")
                     current_room.remove_monster(monster)
                 else:
-                    print(f"The {monster.name} has {col.red}{monster.health}{col.reset} health remaining.")
+                    print(f"The {monster.name} has {col.red}{monster.health}{col.reset} health remaining.\n")
                     
             else:
-                print(col.red + "There are no monsters in the room." + col.reset)
+                clear()
+                print(col.red + "There are no monsters in the room.\n" + col.reset)
 
         elif choice == "4":
             clear()
-            print("Inventory:")
+            print("Items:")
             if len(player.inventory) > 0:
-                print("Items:")
                 for item in player.inventory:
-                    print(col.lightblue + item.name + col.reset)
+                    print(f"\n{col.lightblue}{item.name}{col.reset}")
+                    print(f"{col.grey}{item.description}{col.reset}")
             else:
                 print(col.grey + "Empty" + col.reset)
+
+            print("\nKeys:")
+            if len(player.keys) > 0:
+                for key in player.keys:
+                    print(f"\n{col.lightblue}{key.name}{col.reset}")
+                    print(f"{col.grey}{key.description}{col.reset}")
+            else:
+                print(col.grey + "Empty" + col.reset)
+
+            input("\nPress enter to continue...")
+            clear()
 
 
         elif choice == "5":
@@ -324,12 +364,12 @@ def main(player):
                     item_index = int(item_choice) - 1
                     item = player.inventory[item_index]
                     # Add item usage logic here
-                    print(f"You used the {item.name}.")
+                    print(f"You used the {item.name}.\n")
                     player.remove_item_from_inventory(item)
                 else:
-                    print(col.red + "Invalid item choice." + col.reset)
+                    print(col.red + "Invalid item choice.\n" + col.reset)
             else:
-                print(col.grey + "Inventory is empty." + col.reset)
+                print(col.grey + "Inventory is empty.\n" + col.reset)
 
         elif choice == "6":
             clear()
@@ -339,7 +379,7 @@ def main(player):
 
         else:
             clear()
-            print(col.red + "Invalid choice. Please try again." + col.reset)
+            print(col.red + "Invalid choice. Please try again.\n" + col.reset)
 
         if player_health <= 0:
             print("Game over. You have died.")
