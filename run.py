@@ -119,7 +119,8 @@ class Player:
     def take_damage(self, damage):
         self.health -= damage
         if self.health <= 0:
-            print("Game over. You have died.")
+            clear()
+            print(f"{col.red}{col.bold}Game over. You have died.")
             # Additional actions or game over logic can be added here
             exit()
 
@@ -154,7 +155,7 @@ def main(player):
         dining = Room("Dining Room", "A small room with a wooden table that has rotten food atop it.")
         dungeon = Room("Dungeon", "A dark, murky room. You can make out a dead skeleton.", locked=True)
         lounge = Room("Lounge", "A room with 2 armchairs and a log fire that went out long ago.")
-        clothing = Room("Clothing Room", "A small storage room with clothes hung on the walls.", locked=True)
+        closet = Room("Closet", "A small storage room with clothes hung on the walls.", locked=True)
         landing_f1 = Room("First Floor Landing", "A small, dark room. a cat scurries away as you enter.")
         landing_f2 = Room("Second Floor Landing", "A cobweb-filled room with a broken chandelier.")
         bedroom = Room("Bedroom", "The master bedroom. a rotting woman is in the four-poster bed.", locked=True)
@@ -169,9 +170,9 @@ def main(player):
         landing_g.adjacent_rooms = [ug_tunnel, dining]
         dining.adjacent_rooms = [landing_g, dungeon, landing_f1]
         dungeon.adjacent_rooms = [dining]
-        lounge.adjacent_rooms = [landing_f1, clothing, bedroom,landing_f2]
-        clothing.adjacent_rooms = [lounge, landing_f2]
-        landing_f1.adjacent_rooms = [lounge, attic, clothing, dining]
+        lounge.adjacent_rooms = [landing_f1, closet, bedroom,landing_f2]
+        closet.adjacent_rooms = [lounge, landing_f2]
+        landing_f1.adjacent_rooms = [lounge, attic, closet, dining]
         landing_f2.adjacent_rooms = [lounge,bedroom]
         bedroom.adjacent_rooms = [landing_f2, bathroom, lounge]
         bathroom.adjacent_rooms = [bedroom, attic]
@@ -184,44 +185,52 @@ def main(player):
         sword = Item("Sword", "A sharp sword.", 10)
         flint = Item("Flint", "A small, sharp piece of flint.", 5)
         stone = Item("Stone", "A medium-sized stone.", 3)
+        bandage = Item("Bandage", "A roll of bandage")
 
         # create keys
-        dungeon_key = Key("Dungeon Key", "A key that unlocks the dungeon", room_to_unlock=dungeon)
+        dungeon_key = Key("Dungeon Key", "A large rusty key", room_to_unlock=dungeon)
+        bedroom_key = Key("Dungeon Key", "A medium-sized steel key", room_to_unlock=bedroom)
+        closet_key = Key("Closet Key", "A relatively small silver key", room_to_unlock=closet)
+        chest_key = Key("Chest Key", "A very small golden key", room_to_unlock=chest_room)
 
         # Create monsters
         goblin = Monster("Goblin", "A small and vicious creature.", 20, 5)
         dragon = Monster("Dragon", "A fire-breathing dragon!", 100, 20)
+        spider = Monster("Vicious Spider", "A vicious spider", 1, 3)
+        ghoul = Monster("Ghoul", "An evil, haunting spirit", 1000, 3)
+        skeleton = Monster("Skeleton", "A skeleton", 15, 7)
+        living_gold = Monster("Living Gold", "Gold that has come to life", 10, 4)
 
         # Add items and monsters to rooms
         ug_cabin.add_item([stone])
         ug_tunnel.add_item([flint])
-        landing_g.add_item([sword])
-        dining.add_item([dungeon_key])
+        landing_g.add_item([sword,bandage])
+        dining.add_item([])
         dungeon.add_item([])
-        lounge.add_item([])
-        clothing.add_item([])
+        lounge.add_item([bedroom_key])
+        closet.add_item([chest_key])
         landing_f1.add_item([])
-        landing_f2.add_item([])
+        landing_f2.add_item([closet_key])
         bedroom.add_item([])
         bathroom.add_item([])
         treasury.add_item([])
         chest_room.add_item([])
-        attic.add_item([])
+        attic.add_item([dungeon_key])
 
         ug_cabin.add_monster([dragon])
         ug_tunnel.add_monster([goblin])
         landing_g.add_monster([])
-        dining.add_monster([])
-        dungeon.add_monster([])
+        dining.add_monster([ghoul])
+        dungeon.add_monster([spider, spider, skeleton, ghoul])
         lounge.add_monster([])
-        clothing.add_monster([])
+        closet.add_monster([])
         landing_f1.add_monster([])
-        landing_f2.add_monster([])
+        landing_f2.add_monster([spider])
         bedroom.add_monster([])
-        bathroom.add_monster([])
-        treasury.add_monster([])
+        bathroom.add_monster([spider])
+        treasury.add_monster([living_gold])
         chest_room.add_monster([])
-        attic.add_monster([])
+        attic.add_monster([spider,spider,spider])
 
         current_room = landing_g
         player_health = 100
@@ -229,6 +238,11 @@ def main(player):
         clear()
     while True:
 
+        for item in player.inventory:
+            if item.name == "Bandage":
+                print(f"Your bandage heals you. It gives you {col.green}5{col.reset} health.")
+                print(f"You now have {col.green}{player.health}{col.reset} health.\n")
+        
         damage_from_monster = 0
         if current_room.monsters != []:
             for monster in current_room.monsters:
@@ -315,10 +329,12 @@ def main(player):
                     clear()
                     for item in current_room.items:
                         if item.name.lower() == item_choice.lower():
-                            if item.name == "Poisonous Mushroom":
-                                print("You picked up the Poisonous Mushroom. It harms you!")
-                                player.take_damage(10)
-                                print(f"You took 10 damage. Your health is now {player.health}.\n")
+                            if item.name == "Bandage":
+                                clear()
+                                print(f"You picked up the Bandage. You use it to heal yourself for {col.green}25{col.reset} health!")
+                                player.health += 25
+                                print(f"You now have {col.green}{player.health}{col.reset} health.\n")
+                                current_room.remove_item(item)
                             elif isinstance(item, Key):
                                 player.add_key_to_inventory(item)
                                 current_room.remove_item(item)
@@ -337,17 +353,20 @@ def main(player):
 
         elif choice == "3":
             damage_from_player = player.damage
+            for item in player.inventory:
+                damage_from_player += item.damage
+
             if len(current_room.monsters) > 0:
-                monster_choice = input("Enter the number of the monster you wish to attack: ")
+                monster = input("Enter the number of the monster you wish to attack: ")
 
                 try:
-                    current_room.monsters[int(monster_choice)-1]
+                    current_room.monsters[int(monster)-1]
                 except:
                     clear()
                     print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
                 else:
 
-                    monster_choice = current_room.monsters[int(monster_choice)-1]
+                    monster = current_room.monsters[int(monster)-1]
                     clear()
                     print(f"You attack the {monster.name}!")
                     monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
