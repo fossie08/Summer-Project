@@ -8,8 +8,9 @@ def save_game_state(current_room, player_health):
     game_state = {
         'current_room': current_room,
         'player_health': player_health,
-        'items': current_room.items,
-        'monster_health': [monster.health for monster in current_room.monsters]
+        #'items': current_room.items,
+        'monster_health': [monster.health for monster in current_room.monsters],
+        'inventory': player.inventory
     }
 
     with open(save_filename, 'wb') as save_file:
@@ -22,12 +23,13 @@ def load_game_state():
             game_state = pickle.load(save_file)
         current_room = game_state['current_room']
         player_health = game_state['player_health']
-        items = game_state['items']
+        #items = game_state['items']
         monster_health = game_state['monster_health']
+        player.inventory = game_state['inventory']
 
         # Update the current room's items
-        for item in items:
-            current_room.add_item(item)
+        #for item in items:
+           # current_room.add_item(item)
 
         # Update the monster health in the current room
         for i, monster in enumerate(current_room.monsters):
