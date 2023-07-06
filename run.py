@@ -226,6 +226,15 @@ def main(player):
 
         clear()
     while True:
+
+        damage_from_monster = 0
+        if current_room.monsters != []:
+            for monster in current_room.monsters:
+                damage_from_monster += monster.damage
+            print(f"You are attacked by a {monster.name}!")
+            player.take_damage(int(random.randint(75, 150) * damage_from_monster / 100))
+            print(f"You have {col.red}{player.health}{col.reset} health remaining.\n")
+
         print(f"{current_room.name}")
         print(col.grey + current_room.description + col.reset)
 
@@ -380,10 +389,6 @@ def main(player):
         else:
             clear()
             print(col.red + "Invalid choice. Please try again.\n" + col.reset)
-
-        if player_health <= 0:
-            print("Game over. You have died.")
-            break
 
 if __name__ == "__main__":
     player = Player(100)
