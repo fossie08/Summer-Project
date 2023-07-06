@@ -189,7 +189,7 @@ def main(player):
 
         # create keys
         dungeon_key = Key("Dungeon Key", "A large rusty key", room_to_unlock=dungeon)
-        bedroom_key = Key("Dungeon Key", "A medium-sized steel key", room_to_unlock=bedroom)
+        bedroom_key = Key("Bedroom Key", "A medium-sized steel key", room_to_unlock=bedroom)
         closet_key = Key("Closet Key", "A relatively small silver key", room_to_unlock=closet)
         chest_key = Key("Chest Key", "A very small golden key", room_to_unlock=chest_room)
 
@@ -211,8 +211,8 @@ def main(player):
         closet.add_item([chest_key])
         landing_f1.add_item([])
         landing_f2.add_item([closet_key])
-        bedroom.add_item([])
-        bathroom.add_item([])
+        bedroom.add_item([bandage])
+        bathroom.add_item([bandage])
         treasury.add_item([])
         chest_room.add_item([])
         attic.add_item([dungeon_key])
@@ -241,14 +241,21 @@ def main(player):
         for item in player.inventory:
             if item.name == "Bandage":
                 print(f"Your bandage heals you. It gives you {col.green}5{col.reset} health.")
+                player.health += 5
                 print(f"You now have {col.green}{player.health}{col.reset} health.\n")
+                if random.randint(0,5) == 5:
+                    print(f"{col.pink}Your bandage has run out!{col.reset}\n")
+                    player.remove_item_from_inventory(bandage)
         
-        damage_from_monster = 0
+        damage_from_monsters = 0
         if current_room.monsters != []:
             for monster in current_room.monsters:
-                damage_from_monster += monster.damage
-            print(f"You are attacked by a {monster.name}!")
-            player.take_damage(int(random.randint(75, 150) * damage_from_monster / 100))
+                damage_from_monsters += monster.damage
+            if len(current_room.monsters) > 1:
+                print("You are attacked by multiple monsters!")
+            else:   
+                print(f"You are attacked by a {monster.name}!")
+            player.take_damage(int(random.randint(75, 150) * damage_from_monsters / 100))
             print(f"You have {col.red}{player.health}{col.reset} health remaining.\n")
 
         print(f"{current_room.name}")
@@ -329,13 +336,7 @@ def main(player):
                     clear()
                     for item in current_room.items:
                         if item.name.lower() == item_choice.lower():
-                            if item.name == "Bandage":
-                                clear()
-                                print(f"You picked up the Bandage. You use it to heal yourself for {col.green}25{col.reset} health!")
-                                player.health += 25
-                                print(f"You now have {col.green}{player.health}{col.reset} health.\n")
-                                current_room.remove_item(item)
-                            elif isinstance(item, Key):
+                            if isinstance(item, Key):
                                 player.add_key_to_inventory(item)
                                 current_room.remove_item(item)
                                 print(f"You picked up the {item.name}.\n")
