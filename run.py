@@ -276,22 +276,33 @@ def main(player):
         choice = input("\nEnter your choice: ")
 
         if choice == "1":
-            print("Enter the number of the room you wish to go to: ", end="")
-            room_choice = current_room.adjacent_rooms[int(input())-1]
-            room_choice = room_choice.name
-            for i in rooms:
-                if i.name.lower() == room_choice.lower():
-                    if i.locked and not player.has_key(i):
-                        clear()
-                        print(col.red + "The room is locked. You need a key to unlock it.\n" + col.reset)
-                        break
-                    else:
-                        current_room = i
-                        clear()
-                        break
-            else:
+            room_choice = input("Enter the number of the room you wish to go to: ")
+            try:
+                int(room_choice)
+            except:
                 clear()
-                print(col.red + "You can't go to that room.\n" + col.reset)
+                print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
+            else:
+
+                try:
+                    current_room.adjacent_rooms[int(room_choice)-1]
+                except:
+                    clear()
+                    print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
+                else:
+
+                    room_choice = current_room.adjacent_rooms[int(room_choice)-1]
+                    room_choice = room_choice.name
+                    for i in rooms:
+                        if i.name.lower() == room_choice.lower():
+                            if i.locked and not player.has_key(i):
+                                clear()
+                                print(col.red + "The room is locked. You need a key to unlock it.\n" + col.reset)
+                                break
+                            else:
+                                current_room = i
+                                clear()
+                                break
 
         elif choice == "2":
             if current_room.items != []:
