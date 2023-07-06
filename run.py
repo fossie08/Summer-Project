@@ -271,8 +271,7 @@ def main(player):
         print("2. Pick up an item")
         print("3. Attack a monster")
         print("4. View inventory")
-        print("5. Use an item")
-        print("6. Quit" + col.reset)
+        print("5. Quit" + col.reset)
         choice = input("\nEnter your choice: ")
 
         if choice == "1":
@@ -337,17 +336,24 @@ def main(player):
         elif choice == "3":
             damage_from_player = player.damage
             if len(current_room.monsters) > 0:
-                #monster = random.choice(current_room.monsters)
-                print('Enter the number of the monster you wish to attack: ', end="") 
-                monster = current_room.monsters[int(input())-1]
-                clear()
-                print(f"You attack the {monster.name}!")
-                monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
-                if monster.health <= 0:
-                    print(f"You defeated the {monster.name}!\n")
-                    current_room.remove_monster(monster)
+                monster_choice = input("Enter the number of the monster you wish to attack: ")
+
+                try:
+                    current_room.monsters[int(monster_choice)-1]
+                except:
+                    clear()
+                    print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
                 else:
-                    print(f"The {monster.name} has {col.red}{monster.health}{col.reset} health remaining.\n")
+
+                    monster_choice = current_room.monsters[int(monster_choice)-1]
+                    clear()
+                    print(f"You attack the {monster.name}!")
+                    monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
+                    if monster.health <= 0:
+                        print(f"You defeated the {monster.name}!\n")
+                        current_room.remove_monster(monster)
+                    else:
+                        print(f"The {monster.name} has {col.red}{monster.health}{col.reset} health remaining.\n")
                     
             else:
                 clear()
@@ -374,26 +380,7 @@ def main(player):
             input("\nPress enter to continue...")
             clear()
 
-
         elif choice == "5":
-            clear()
-            print("Inventory:")
-            if len(player.inventory) > 0:
-                for i, item in enumerate(player.inventory):
-                    print(f"{i+1}. {item.name}")
-                item_choice = input("Enter the number of the item you want to use: ")
-                if item_choice.isdigit() and 1 <= int(item_choice) <= len(player.inventory):
-                    item_index = int(item_choice) - 1
-                    item = player.inventory[item_index]
-                    # Add item usage logic here
-                    print(f"You used the {item.name}.\n")
-                    player.remove_item_from_inventory(item)
-                else:
-                    print(col.red + "Invalid item choice.\n" + col.reset)
-            else:
-                print(col.grey + "Inventory is empty.\n" + col.reset)
-
-        elif choice == "6":
             clear()
             save_game_state(current_room, player.health)  # Save player health instead of player_health
             print(col.lightblue + "Game saved. Goodbye!")
