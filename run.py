@@ -277,57 +277,59 @@ def main(player):
 
         if choice == "1":
             room_choice = input("Enter the number of the room you wish to go to: ")
+
             try:
-                int(room_choice)
+                current_room.adjacent_rooms[int(room_choice)-1]
             except:
                 clear()
                 print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
             else:
 
+                room_choice = current_room.adjacent_rooms[int(room_choice)-1]
+                room_choice = room_choice.name
+                for i in rooms:
+                    if i.name.lower() == room_choice.lower():
+                        if i.locked and not player.has_key(i):
+                            clear()
+                            print(col.red + "The room is locked. You need a key to unlock it.\n" + col.reset)
+                            break
+                        else:
+                            current_room = i
+                            clear()
+                            break
+
+        elif choice == "2":
+            if current_room.items != []:
+                item_choice = input("Enter the number of the item you want to pick up: ")
+
                 try:
-                    current_room.adjacent_rooms[int(room_choice)-1]
+                    current_room.items[int(item_choice)-1]
                 except:
                     clear()
                     print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
                 else:
 
-                    room_choice = current_room.adjacent_rooms[int(room_choice)-1]
-                    room_choice = room_choice.name
-                    for i in rooms:
-                        if i.name.lower() == room_choice.lower():
-                            if i.locked and not player.has_key(i):
-                                clear()
-                                print(col.red + "The room is locked. You need a key to unlock it.\n" + col.reset)
-                                break
-                            else:
-                                current_room = i
-                                clear()
-                                break
-
-        elif choice == "2":
-            if current_room.items != []:
-                print("Enter the number of the item you want to pick up: ", end="")
-                item_choice = current_room.items[int(input())-1]
-                item_choice = item_choice.name
-                clear()
-                for item in current_room.items:
-                    if item.name.lower() == item_choice.lower():
-                        if item.name == "Poisonous Mushroom":
-                            print("You picked up the Poisonous Mushroom. It harms you!")
-                            player.take_damage(10)
-                            print(f"You took 10 damage. Your health is now {player.health}.\n")
-                        elif isinstance(item, Key):
-                            player.add_key_to_inventory(item)
-                            current_room.remove_item(item)
-                            print(f"You picked up the {item.name}.\n")
-                        else:
-                            player.add_item_to_inventory(item)
-                            current_room.remove_item(item)
-                            print(f"You picked up the {item.name}.\n")
-                        break
-                else:
+                    item_choice = current_room.items[int(item_choice)-1]
+                    item_choice = item_choice.name
                     clear()
-                    print(col.red + "That item is not in the room.\n" + col.reset)
+                    for item in current_room.items:
+                        if item.name.lower() == item_choice.lower():
+                            if item.name == "Poisonous Mushroom":
+                                print("You picked up the Poisonous Mushroom. It harms you!")
+                                player.take_damage(10)
+                                print(f"You took 10 damage. Your health is now {player.health}.\n")
+                            elif isinstance(item, Key):
+                                player.add_key_to_inventory(item)
+                                current_room.remove_item(item)
+                                print(f"You picked up the {item.name}.\n")
+                            else:
+                                player.add_item_to_inventory(item)
+                                current_room.remove_item(item)
+                                print(f"You picked up the {item.name}.\n")
+                            break
+                    else:
+                        clear()
+                        print(col.red + "That item is not in the room.\n" + col.reset)
             else:
                 clear()
                 print(col.red + "There are no items in this room.\n" + col.reset)
