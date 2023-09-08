@@ -221,7 +221,7 @@ def main(player):
 
         ug_cabin.add_monster([dragon])
         ug_tunnel.add_monster([goblin])
-        landing_g.add_monster([spider])
+        landing_g.add_monster([])
         dining.add_monster([ghoul, ghoul])
         dungeon.add_monster([spider, spider, skeleton, ghoul])
         lounge.add_monster([])
