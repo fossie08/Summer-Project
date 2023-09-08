@@ -186,6 +186,8 @@ def main(player):
         flint = Item("Flint", "A small, sharp piece of flint.", 5)
         stone = Item("Stone", "A medium-sized stone.", 3)
         bandage = Item("Bandage", "A roll of bandage")
+        gold = Item("Gold", "A very shiny and very heavy ingot of gold", 15)
+        gemstone = Item("Gemstone", "Lots of sparkling emerald-green gemstones", 1)
 
         # create keys
         dungeon_key = Key("Dungeon Key", "A large rusty key", room_to_unlock=dungeon)
@@ -214,23 +216,23 @@ def main(player):
         bedroom.add_item([bandage])
         bathroom.add_item([bandage])
         treasury.add_item([])
-        chest_room.add_item([])
+        chest_room.add_item([gold, gold, gemstone])
         attic.add_item([dungeon_key])
 
         ug_cabin.add_monster([dragon])
         ug_tunnel.add_monster([goblin])
-        landing_g.add_monster([])
-        dining.add_monster([ghoul])
+        landing_g.add_monster([spider])
+        dining.add_monster([ghoul, ghoul])
         dungeon.add_monster([spider, spider, skeleton, ghoul])
         lounge.add_monster([])
-        closet.add_monster([])
-        landing_f1.add_monster([])
+        closet.add_monster([ghoul])
+        landing_f1.add_monster([ghoul])
         landing_f2.add_monster([spider])
-        bedroom.add_monster([])
-        bathroom.add_monster([spider])
+        bedroom.add_monster([spider, spider])
+        bathroom.add_monster([spider, spider])
         treasury.add_monster([living_gold])
-        chest_room.add_monster([])
-        attic.add_monster([spider,spider,spider])
+        chest_room.add_monster([ghoul])
+        attic.add_monster([spider, spider, spider])
 
         current_room = landing_g
         player_health = 100
@@ -291,10 +293,15 @@ def main(player):
 
         print("\nWhat would you like to do?")
         print(col.grey + "1. Move to another room")
-        print("2. Pick up an item")
+
+        if int(len(current_room.items)) == 1:
+            print("2. Pick up the item")
+        else:
+            print("2. Pick up an item")
+
         print("3. Attack a monster")
         print("4. View inventory")
-        print("5. Quit" + col.reset)
+        print("5. Close Program" + col.reset)
         choice = input("\nEnter your choice: ")
 
         if choice == "1":
@@ -321,7 +328,7 @@ def main(player):
                             break
 
         elif choice == "2":
-            if current_room.items != []:
+            if int(len(current_room.items)) > 1:
                 item_choice = input("Enter the number of the item you want to pick up: ")
 
                 try:
@@ -348,6 +355,19 @@ def main(player):
                     else:
                         clear()
                         print(col.red + "That item is not in the room.\n" + col.reset)
+
+            elif int(len(current_room.items)) == 1:
+                clear()
+                item = current_room.items[0]
+                if isinstance(item, Key):
+                    player.add_key_to_inventory(item)
+                    current_room.remove_item(item)
+                    print(f"You picked up the {item.name}.\n")
+                else:
+                    player.add_item_to_inventory(item)
+                    current_room.remove_item(item)
+                    print(f"You picked up the {item.name}.\n")
+
             else:
                 clear()
                 print(col.red + "There are no items in this room.\n" + col.reset)
