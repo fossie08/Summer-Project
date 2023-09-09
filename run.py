@@ -1,6 +1,7 @@
 import random #Allows generation of random numbers/choices
 import os #Allows clearing of the terminal
 import pickle #saving of the game
+import time
 
 save_filename = 'game_state.pkl'
 
@@ -153,16 +154,17 @@ def main(player):
         ug_tunnel = Room("Underground Tunnel", "A dark, dirty underground tunnel.")
         landing_g = Room("Ground Floor Landing", "A small room with a coat hanger.")
         dining = Room("Dining Room", "A small room with a wooden table that has rotten food atop it.")
-        dungeon = Room("Dungeon", "A dark, murky room. You can make out a dead skeleton.", locked=True)
+        dungeon = Room("Dungeon", "A dark, murky room. You can make out a dead skeleton.", locked=False)
         lounge = Room("Lounge", "A room with 2 armchairs and a log fire that went out long ago.")
-        closet = Room("Closet", "A small storage room with clothes hung on the walls.", locked=True)
+        closet = Room("Closet", "A small storage room with clothes hung on the walls.", locked=False)
         landing_f1 = Room("First Floor Landing", "A small, dark room. a cat scurries away as you enter.")
         landing_f2 = Room("Second Floor Landing", "A cobweb-filled room with a broken chandelier.")
-        bedroom = Room("Bedroom", "The master bedroom. a rotting woman is in the four-poster bed.", locked=True)
+        bedroom = Room("Bedroom", "The master bedroom. a rotting woman is in the four-poster bed.", locked=False)
         bathroom = Room("Bathroom", "A small bathroom with a dripping tap.")
         treasury = Room("Treasury", "A small room with a small, locked chest.")
-        chest_room = Room("Chest", "The small chest inside the treasury.", locked=True)
+        chest_room = Room("Chest", "The small chest inside the treasury.", locked=False)
         attic = Room("Attic", "An old attic with a skeleton lying on a small table. a spider drops form the ceiling.")
+        window_room = Room("Window", "The finishing point of the game")
 
         # Define Adjacent Rooms
         ug_cabin.adjacent_rooms = [ug_tunnel]
@@ -179,7 +181,6 @@ def main(player):
         treasury.adjacent_rooms = [attic, chest_room]
         chest_room.adjacent_rooms = [treasury, attic]
         attic.adjacent_rooms = [landing_f1, bathroom, treasury]
-        
 
         # Create items
         sword = Item("Sword", "A sharp sword.", 10)
@@ -239,7 +240,15 @@ def main(player):
 
         clear()
     while True:
+        if int(len(current_room.items)) == 0 and current_room.name == 'Chest':
+            chest_room.adjacent_rooms = [treasury, attic, window_room]
 
+        if current_room.name == 'Window':
+            print(col.green + 'You have completed the game!' + col.reset)
+            print(col.red + 'Game will not save and exit in 10 seconds')
+            time.sleep(10)
+            break
+        
         for item in player.inventory:
             if item.name == "Bandage":
                 print(f"Your bandage heals you. It gives you {col.green}5{col.reset} health.")
@@ -287,6 +296,8 @@ def main(player):
                 print(f"{col.grey}{c}. {room.name} {col.red}[Locked]{col.reset}")
             elif room.locked and player.has_key(room):
                 print(f"{col.lightblue}{c}. {room.name} {col.green}[Unlocked]{col.reset}")
+            elif room.name == 'Window':
+                print(f"{col.lightblue}{c}. {room.name} {col.green}[EXIT]{col.reset}")
             else:
                 print(f"{col.lightblue}{c}. {room.name}{col.reset}")
             c += 1
@@ -426,6 +437,11 @@ def main(player):
             clear()
             save_game_state(current_room, player.health)  # Save player health instead of player_health
             print(col.lightblue + "Game saved. Goodbye!")
+            break
+        elif current_room.name == 'Window':
+            print(col.green + 'You have completed the game!' + col.reset)
+            print(col.red + 'Game will not save and exit in 10 seconds')
+            time.sleep(10)
             break
 
         else:
