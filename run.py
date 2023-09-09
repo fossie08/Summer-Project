@@ -164,7 +164,8 @@ def main(player):
         treasury = Room("Treasury", "A small room with a small, locked chest.")
         chest_room = Room("Chest", "The small chest inside the treasury.", locked=False)
         attic = Room("Attic", "An old attic with a skeleton lying on a small table. a spider drops form the ceiling.")
-        window_room = Room("Window", "The finishing point of the game")
+
+
 
         # Define Adjacent Rooms
         ug_cabin.adjacent_rooms = [ug_tunnel]
@@ -438,9 +439,10 @@ def main(player):
             save_game_state(current_room, player.health)  # Save player health instead of player_health
             print(col.lightblue + "Game saved. Goodbye!")
             break
+
         elif choice == "6" and int(len(current_room.items)) == 0 and current_room.name == 'Chest':
             clear()
-            print(col.green + 'You have escaped the dungeon and completed the game!' + col.reset)
+            print(col.green + 'You have successfully escaped the dungeon and completed the game!' + col.reset)
             print(col.red + 'For game security reasons the game will not save and exit in 10 seconds')
             time.sleep(10)
             break
