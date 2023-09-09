@@ -240,15 +240,13 @@ def main(player):
 
         clear()
     while True:
-        if int(len(current_room.items)) == 0 and current_room.name == 'Chest':
-            chest_room.adjacent_rooms = [treasury, attic, window_room]
 
         if current_room.name == 'Window':
             print(col.green + 'You have completed the game!' + col.reset)
             print(col.red + 'Game will not save and exit in 10 seconds')
             time.sleep(10)
             break
-        
+
         for item in player.inventory:
             if item.name == "Bandage":
                 print(f"Your bandage heals you. It gives you {col.green}5{col.reset} health.")
@@ -313,6 +311,8 @@ def main(player):
         print("3. Attack a monster")
         print("4. View inventory")
         print("5. Close Program" + col.reset)
+        if int(len(current_room.items)) == 0 and current_room.name == 'Chest':
+            print(col.grey + "6. Jump out the window" + col.reset)
         choice = input("\nEnter your choice: ")
 
         if choice == "1":
@@ -438,9 +438,10 @@ def main(player):
             save_game_state(current_room, player.health)  # Save player health instead of player_health
             print(col.lightblue + "Game saved. Goodbye!")
             break
-        elif current_room.name == 'Window':
-            print(col.green + 'You have completed the game!' + col.reset)
-            print(col.red + 'Game will not save and exit in 10 seconds')
+        elif choice == "6" and int(len(current_room.items)) == 0 and current_room.name == 'Chest':
+            clear()
+            print(col.green + 'You have escaped the dungeon and completed the game!' + col.reset)
+            print(col.red + 'For game security reasons the game will not save and exit in 10 seconds')
             time.sleep(10)
             break
 
