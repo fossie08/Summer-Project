@@ -1,7 +1,7 @@
 import random #Allows generation of random numbers/choices
 import os #Allows clearing of the terminal
-import pickle #saving of the game
-import time
+import pickle #Allows saving of the game
+import time #Allows waiting for certain periods of time
 
 save_filename = 'game_state.pkl'
 
@@ -24,13 +24,8 @@ def load_game_state():
             game_state = pickle.load(save_file)
         current_room = game_state['current_room']
         player_health = game_state['player_health']
-        #items = game_state['items']
         monster_health = game_state['monster_health']
         player.inventory = game_state['inventory']
-
-        # Update the current room's items
-        #for item in items:
-           # current_room.add_item(item)
 
         # Update the monster health in the current room
         for i, monster in enumerate(current_room.monsters):
@@ -38,7 +33,7 @@ def load_game_state():
 
         return current_room, player_health
     except FileNotFoundError:
-        return None, None
+        return None, 100
 
 
 
@@ -144,8 +139,8 @@ def clear():
     os.system('cls||clear')
 
 def main(player):
-
     current_room, player_health = load_game_state()
+    player.health = player_health
     clear()
     
     if current_room is None or player_health is None:
@@ -154,15 +149,15 @@ def main(player):
         ug_tunnel = Room("Underground Tunnel", "A dark, dirty underground tunnel.")
         landing_g = Room("Ground Floor Landing", "A small room with a coat hanger.")
         dining = Room("Dining Room", "A small room with a wooden table that has rotten food atop it.")
-        dungeon = Room("Dungeon", "A dark, murky room. You can make out a dead skeleton.", locked=False)
+        dungeon = Room("Dungeon", "A dark, murky room. You can make out a dead skeleton.", locked=True)
         lounge = Room("Lounge", "A room with 2 armchairs and a log fire that went out long ago.")
-        closet = Room("Closet", "A small storage room with clothes hung on the walls.", locked=False)
+        closet = Room("Closet", "A small storage room with clothes hung on the walls.", locked=True)
         landing_f1 = Room("First Floor Landing", "A small, dark room. a cat scurries away as you enter.")
         landing_f2 = Room("Second Floor Landing", "A cobweb-filled room with a broken chandelier.")
-        bedroom = Room("Bedroom", "The master bedroom. a rotting woman is in the four-poster bed.", locked=False)
+        bedroom = Room("Bedroom", "The master bedroom. a rotting woman is in the four-poster bed.", locked=True)
         bathroom = Room("Bathroom", "A small bathroom with a dripping tap.")
         treasury = Room("Treasury", "A small room with a small, locked chest.")
-        chest_room = Room("Chest", "The small chest inside the treasury.", locked=False)
+        chest_room = Room("Chest", "The small chest inside the treasury.", locked=True)
         attic = Room("Attic", "An old attic with a skeleton lying on a small table. a spider drops form the ceiling.")
 
 
@@ -236,17 +231,9 @@ def main(player):
         chest_room.add_monster([ghoul])
         attic.add_monster([spider, spider, spider])
 
-        current_room = landing_g
-        player_health = 100
-
         clear()
+        current_room = landing_g
     while True:
-
-        if current_room.name == 'Window':
-            print(col.green + 'You have completed the game!' + col.reset)
-            print(col.red + 'Game will not save and exit in 10 seconds')
-            time.sleep(10)
-            break
 
         for item in player.inventory:
             if item.name == "Bandage":
@@ -301,6 +288,7 @@ def main(player):
                 print(f"{col.lightblue}{c}. {room.name}{col.reset}")
             c += 1
 
+        # Display Options
         print("\nWhat would you like to do?")
         print(col.grey + "1. Move to another room")
 
@@ -311,11 +299,13 @@ def main(player):
 
         print("3. Attack a monster")
         print("4. View inventory")
-        print("5. Close Program" + col.reset)
+        print("5. Close the program" + col.reset)
+
         if int(len(current_room.items)) == 0 and current_room.name == 'Chest':
             print(col.grey + "6. Jump out the window" + col.reset)
         choice = input("\nEnter your choice: ")
 
+        # Interpret Input
         if choice == "1":
             room_choice = input("Enter the number of the room you wish to go to: ")
 
@@ -437,13 +427,14 @@ def main(player):
         elif choice == "5":
             clear()
             save_game_state(current_room, player.health)  # Save player health instead of player_health
-            print(col.lightblue + "Game saved. Goodbye!")
+            print(col.lightblue + "Game saved. The program will close in 5 seconds.")
+            time.sleep(5)
             break
 
         elif choice == "6" and int(len(current_room.items)) == 0 and current_room.name == 'Chest':
             clear()
-            print(col.green + 'You have successfully escaped the dungeon and completed the game!' + col.reset)
-            print(col.red + 'For game security reasons the game will not save and exit in 10 seconds')
+            print(col.green + col.bold + 'You have successfully escaped the dungeon and completed the game!')
+            print(col.grey + col.reset + 'The game will close in 10 seconds.')
             time.sleep(10)
             break
 
