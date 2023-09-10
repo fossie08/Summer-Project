@@ -242,7 +242,7 @@ def main(player):
                 print(f"You now have {col.green}{player.health}{col.reset} health.\n")
                 if random.randint(0,5) == 5:
                     print(f"{col.pink}Your bandage has run out!{col.reset}\n")
-                    player.remove_item_from_inventory(bandage)
+                    player.remove_item_from_inventory(item)
         
         damage_from_monsters = 0
         if current_room.monsters != []:
