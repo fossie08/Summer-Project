@@ -4,7 +4,7 @@ import pickle #Allows saving of the game
 import time #Allows waiting for certain periods of time
 
 save_filename = 'game_state.pkl'
-
+start_time = ''
 def save_game_state(current_room, player_health):
     game_state = {
         'current_room': current_room,
@@ -232,7 +232,8 @@ def main(player):
         attic.add_monster([spider, spider, spider])
 
         clear()
-        current_room = landing_g
+        current_room = chest_room
+        start_time = time.time()
     while True:
 
         for item in player.inventory:
@@ -432,10 +433,13 @@ def main(player):
             break
 
         elif choice == "6" and int(len(current_room.items)) == 0 and current_room.name == 'Chest':
+            stop_time = time.time()
+            time_spent = round(stop_time - start_time,2)
             clear()
-            print(col.green + col.bold + 'You have successfully escaped the dungeon and completed the game!')
-            print(col.grey + col.reset + 'The game will close in 10 seconds.')
+            print(col.green + col.bold + 'You have successfully escaped the dungeon and completed the game in',time_spent,'seconds!')
+            print(col.reset + col.red + 'The game will close in 10 seconds.')
             time.sleep(10)
+            clear()
             break
 
         else:
