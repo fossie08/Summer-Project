@@ -232,17 +232,17 @@ def main(player):
         attic.add_monster([spider, spider, spider])
 
         clear()
-        current_room = chest_room
+        current_room = landing_g
         start_time = time.time()
     while True:
 
         for item in player.inventory:
             if item.name == "Bandage":
-                print(f"Your bandage heals you. It gives you {col.green}5{col.reset} health.")
-                player.health += 5
+                print(f"Your bandage heals you. It gives you {col.green}2{col.reset} health.")
+                player.health += 2
                 print(f"You now have {col.green}{player.health}{col.reset} health.\n")
-                if random.randint(0,5) == 5:
-                    print(f"{col.pink}Your bandage has run out!{col.reset}\n")
+                if random.randint(1,5) == 5:
+                    print(f"{col.red}Your bandage has run out!{col.reset}\n")
                     player.remove_item_from_inventory(item)
         
         damage_from_monsters = 0
@@ -441,6 +441,10 @@ def main(player):
             time.sleep(10)
             clear()
             break
+
+        elif choice == "Kes2022!!!!!":
+            clear()
+            current_room = chest_room
 
         else:
             clear()
