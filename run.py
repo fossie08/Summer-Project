@@ -117,7 +117,7 @@ class Player:
         if self.health <= 0:
             clear()
             print(f"{col.red}{col.bold}Game over. You have died.")
-            print(f"{col.reset}{col.red}The program will close in 5 seconds")
+            print(f"{col.reset}{col.red}The program will close in 5 seconds.")
             time.sleep(5)
             exit()
 
