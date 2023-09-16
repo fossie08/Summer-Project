@@ -117,7 +117,8 @@ class Player:
         if self.health <= 0:
             clear()
             print(f"{col.red}{col.bold}Game over. You have died.")
-            # Additional actions or game over logic can be added here
+            print(f"{col.reset}{col.red}The program will close in 5 seconds")
+            time.sleep(5)
             exit()
 
     def add_item_to_inventory(self, item):
