@@ -139,6 +139,50 @@ class Player:
 def clear():
     os.system('cls||clear')
 
+def invalid_choice():
+    clear()
+    print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
+
+def find_item(room):
+    items = room.items
+
+    if len(items) == 0:
+        clear()
+        print(f"{col.red}There are no items in the room.{col.reset}\n")
+        return
+
+    if len(items) == 1:
+        item = items[0]
+    
+    if len(items) > 1:
+        player_input = input(f"{col.reset}Enter the number of the item you want to pick up: ")
+        try:
+            items[int(player_input)-1]
+        except:
+            invalid_choice()
+            return
+        item = items[int(player_input)-1]
+
+    if isinstance(item, Key):
+        player.add_key_to_inventory(item)
+        room.remove_item(item)
+        clear()
+        print(f"{col.reset}You have picked up the {col.blue}{item.name}{col.reset}.\n")
+        return
+
+    clear()
+    print(f"{col.reset}You have picked up the {col.blue}{item.name}{col.reset}.\n")
+    player.add_item_to_inventory(item)
+    room.remove_item(item)
+    return
+    
+
+
+
+    
+
+
+
 def main(player):
     current_room, player_health = load_game_state()
     player.health = player_health
@@ -235,6 +279,7 @@ def main(player):
         clear()
         current_room = landing_g
         start_time = time.time()
+
     while True:
 
         for item in player.inventory:
@@ -332,49 +377,7 @@ def main(player):
                             break
 
         elif choice == "2":
-            if int(len(current_room.items)) > 1:
-                item_choice = input("Enter the number of the item you want to pick up: ")
-
-                try:
-                    current_room.items[int(item_choice)-1]
-                except:
-                    clear()
-                    print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
-                else:
-
-                    item_choice = current_room.items[int(item_choice)-1]
-                    item_choice = item_choice.name
-                    clear()
-                    for item in current_room.items:
-                        if item.name.lower() == item_choice.lower():
-                            if isinstance(item, Key):
-                                player.add_key_to_inventory(item)
-                                current_room.remove_item(item)
-                                print(f"You picked up the {item.name}.\n")
-                            else:
-                                player.add_item_to_inventory(item)
-                                current_room.remove_item(item)
-                                print(f"You picked up the {item.name}.\n")
-                            break
-                    else:
-                        clear()
-                        print(col.red + "That item is not in the room.\n" + col.reset)
-
-            elif int(len(current_room.items)) == 1:
-                clear()
-                item = current_room.items[0]
-                if isinstance(item, Key):
-                    player.add_key_to_inventory(item)
-                    current_room.remove_item(item)
-                    print(f"You picked up the {item.name}.\n")
-                else:
-                    player.add_item_to_inventory(item)
-                    current_room.remove_item(item)
-                    print(f"You picked up the {item.name}.\n")
-
-            else:
-                clear()
-                print(col.red + "There are no items in this room.\n" + col.reset)
+            find_item(current_room)
 
         elif choice == "3":
             damage_from_player = player.damage
