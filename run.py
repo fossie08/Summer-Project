@@ -17,7 +17,6 @@ def save_game_state(current_room, player_health):
     with open(save_filename, 'wb') as save_file:
         pickle.dump(game_state, save_file)
 
-
 def load_game_state():
     try:
         with open(save_filename, 'rb') as save_file:
@@ -34,8 +33,6 @@ def load_game_state():
         return current_room, player_health
     except FileNotFoundError:
         return None, 100
-
-
 
 class col: #Allows formatting of text
     reset = '\033[0m'
@@ -60,7 +57,6 @@ class col: #Allows formatting of text
     lightblue = '\033[94m'
     pink = '\033[95m'
     lightcyan = '\033[96m'
-
 
 class Room:
     def __init__(self, name, description, locked=False):
@@ -143,7 +139,7 @@ def invalid_choice():
     clear()
     print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
 
-def find_item(room):
+def item_system(room):
     items = room.items
 
     if len(items) == 0:
@@ -175,14 +171,43 @@ def find_item(room):
     player.add_item_to_inventory(item)
     room.remove_item(item)
     return
+
+def player_attack_monster_system(room):
+    monsters = room.monsters
+
+    if len(monsters) == 0:
+        clear()
+        print(f"{col.red}There are no monsters in the room.{col.reset}\n")
+        return
     
-
-
-
+    if len(monsters) == 1:
+        monster = monsters[0]
     
+    if len(monsters) > 1:
+        player_input = input(f"{col.reset}Enter the number of the monster you want to attack: ")
+        try:
+            monsters[int(player_input)-1]
+        except:
+            invalid_choice()
+            return
+        monster = monsters[int(player_input)-1]
 
+    damage_from_player = player.damage
+    for item in player.inventory:
+        damage_from_player += item.damage
 
+    clear()
+    print(f"You attack the {col.red}{monster.name}{col.reset}!")
+    monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
 
+    if monster.health <= 0:
+        print(f"You defeated the {col.red}{monster.name}{col.reset}!\n")
+        room.remove_monster(monster)
+        return
+    
+    print(f"The {col.red}{monster.name}{col.reset} has {col.red}{monster.health}{col.reset} health remaining.\n")
+    return
+    
 def main(player):
     current_room, player_health = load_game_state()
     player.health = player_health
@@ -296,9 +321,9 @@ def main(player):
             for monster in current_room.monsters:
                 damage_from_monsters += monster.damage
             if len(current_room.monsters) > 1:
-                print("You are attacked by multiple monsters!")
+                print(f"You are attacked by {col.red}multiple monsters{col.reset}!")
             else:   
-                print(f"You are attacked by a {monster.name}!")
+                print(f"You are attacked by a {col.red}{monster.name}{col.reset}!")
             player.take_damage(int(random.randint(75, 150) * damage_from_monsters / 100))
             print(f"You have {col.red}{player.health}{col.reset} health remaining.\n")
 
@@ -344,7 +369,11 @@ def main(player):
         else:
             print("2. Pick up an item")
 
-        print("3. Attack a monster")
+        if int(len(current_room.monsters)) == 1:
+            print("3. Attack the monster")
+        else:
+            print("3. Attack a monster")
+
         print("4. View inventory")
         print("5. Close the program" + col.reset)
 
@@ -377,36 +406,10 @@ def main(player):
                             break
 
         elif choice == "2":
-            find_item(current_room)
+            item_system(current_room)
 
         elif choice == "3":
-            damage_from_player = player.damage
-            for item in player.inventory:
-                damage_from_player += item.damage
-
-            if len(current_room.monsters) > 0:
-                monster = input("Enter the number of the monster you wish to attack: ")
-
-                try:
-                    current_room.monsters[int(monster)-1]
-                except:
-                    clear()
-                    print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
-                else:
-
-                    monster = current_room.monsters[int(monster)-1]
-                    clear()
-                    print(f"You attack the {monster.name}!")
-                    monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
-                    if monster.health <= 0:
-                        print(f"You defeated the {monster.name}!\n")
-                        current_room.remove_monster(monster)
-                    else:
-                        print(f"The {monster.name} has {col.red}{monster.health}{col.reset} health remaining.\n")
-                    
-            else:
-                clear()
-                print(col.red + "There are no monsters in the room.\n" + col.reset)
+            player_attack_monster_system(current_room)
 
         elif choice == "4":
             clear()
