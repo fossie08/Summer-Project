@@ -139,6 +139,8 @@ def invalid_choice():
     clear()
     print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
 
+
+
 def item_system(room):
     items = room.items
 
@@ -171,6 +173,8 @@ def item_system(room):
     player.add_item_to_inventory(item)
     room.remove_item(item)
     return
+
+
 
 def player_attack_monster_system(room):
     monsters = room.monsters
@@ -208,6 +212,29 @@ def player_attack_monster_system(room):
     print(f"The {col.red}{monster.name}{col.reset} has {col.red}{monster.health}{col.reset} health remaining.\n")
     return
     
+
+
+def monster_attack_player_system(room):
+    monsters = room.monsters
+    damage_from_monsters = 0
+    if len(monsters) == 0:
+        return
+    
+    if len(monsters) == 1: 
+        monster = monsters[0]
+        damage_from_monsters = monster.damage
+        print(f"You are attacked by a {col.red}{monster.name}{col.reset}!")
+
+    if len(monsters) > 1:
+        print(f"You are attacked by {col.red}multiple monsters{col.reset}!")
+        for monster in monsters:
+            damage_from_monsters += monster.damage
+
+    player.take_damage(int(random.randint(75, 150) * damage_from_monsters / 100))
+    print(f"You have {col.red}{player.health}{col.reset} health remaining.\n")
+
+
+
 def main(player):
     current_room, player_health = load_game_state()
     player.health = player_health
@@ -316,16 +343,7 @@ def main(player):
                     print(f"{col.red}Your bandage has run out!{col.reset}\n")
                     player.remove_item_from_inventory(item)
         
-        damage_from_monsters = 0
-        if current_room.monsters != []:
-            for monster in current_room.monsters:
-                damage_from_monsters += monster.damage
-            if len(current_room.monsters) > 1:
-                print(f"You are attacked by {col.red}multiple monsters{col.reset}!")
-            else:   
-                print(f"You are attacked by a {col.red}{monster.name}{col.reset}!")
-            player.take_damage(int(random.randint(75, 150) * damage_from_monsters / 100))
-            print(f"You have {col.red}{player.health}{col.reset} health remaining.\n")
+        monster_attack_player_system(current_room)
 
         print(f"{current_room.name}")
         print(col.grey + current_room.description + col.reset)
