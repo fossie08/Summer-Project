@@ -3,15 +3,18 @@ import os #Allows clearing of the terminal
 import pickle #Allows saving of the game
 import time #Allows waiting for certain periods of time
 
+diff = 0
+
 save_filename = 'game_state.pkl'
 start_time = ''
-def save_game_state(current_room, player_health):
+def save_game_state(current_room, player_health, diff):
     game_state = {
         'current_room': current_room,
         'player_health': player_health,
         #'items': current_room.items,
         'monster_health': [monster.health for monster in current_room.monsters],
-        'inventory': player.inventory
+        'inventory': player.inventory,
+        'difficulty': diff
     }
 
     with open(save_filename, 'wb') as save_file:
@@ -25,14 +28,15 @@ def load_game_state():
         player_health = game_state['player_health']
         monster_health = game_state['monster_health']
         player.inventory = game_state['inventory']
+        diff = game_state['difficulty']
 
         # Update the monster health in the current room
         for i, monster in enumerate(current_room.monsters):
             monster.health = monster_health[i]
 
-        return current_room, player_health
+        return current_room, player_health, diff
     except FileNotFoundError:
-        return None, 100
+        return None, 100, 0
 
 class col: #Allows formatting of text
     reset = '\033[0m'
@@ -57,6 +61,12 @@ class col: #Allows formatting of text
     lightblue = '\033[94m'
     pink = '\033[95m'
     lightcyan = '\033[96m'
+
+#Define difficulties
+#1 is easiest; 4 is hardest; 0 isn't used
+bandage_heal = [0, 5, 4, 3, 2]
+monster_damage_multiplier = [0, 0.005, 0.009, 0.012, 0.014]
+player_damage_multiplier = [0, 0.02, 0.013, 0.01, 0.008, 0.007]
 
 class Room:
     def __init__(self, name, description, locked=False):
@@ -141,6 +151,27 @@ def invalid_choice():
 
 
 
+def room_system(current_room):
+    room_choice = input("Enter the number of the room you wish to go to: ")
+
+    try:
+        current_room.adjacent_rooms[int(room_choice)-1]
+    except:
+        invalid_choice()
+        return current_room
+        
+    room_choice = current_room.adjacent_rooms[int(room_choice)-1]
+
+    if room_choice.locked and not player.has_key(room_choice):
+        clear()
+        print(f"{col.red}This room is locked.{col.reset}")
+        return current_room
+    
+    clear()
+    return room_choice
+
+
+
 def item_system(room):
     items = room.items
 
@@ -176,7 +207,7 @@ def item_system(room):
 
 
 
-def player_attack_monster_system(room):
+def player_attack_monster_system(room, diff):
     monsters = room.monsters
 
     if len(monsters) == 0:
@@ -202,7 +233,7 @@ def player_attack_monster_system(room):
 
     clear()
     print(f"You attack the {col.red}{monster.name}{col.reset}!")
-    monster.health -= int(random.randint(75, 150) * damage_from_player / 100)
+    monster.health -= int(random.randint(75, 150) * damage_from_player * player_damage_multiplier[diff])
 
     if monster.health <= 0:
         print(f"You defeated the {col.red}{monster.name}{col.reset}!\n")
@@ -214,7 +245,7 @@ def player_attack_monster_system(room):
     
 
 
-def monster_attack_player_system(room):
+def monster_attack_player_system(room, diff):
     monsters = room.monsters
     damage_from_monsters = 0
     if len(monsters) == 0:
@@ -230,13 +261,84 @@ def monster_attack_player_system(room):
         for monster in monsters:
             damage_from_monsters += monster.damage
 
-    player.take_damage(int(random.randint(75, 150) * damage_from_monsters / 100))
+    player.take_damage(int(random.randint(75, 150) * damage_from_monsters * monster_damage_multiplier[diff]))
     print(f"You have {col.red}{player.health}{col.reset} health remaining.\n")
 
 
 
+def bandage_system(items,diff):
+    bandages = list(i for i in items if i.name == "Bandage")
+
+    for bandage in bandages:
+        print(f"Your bandage heals you. It gives you {col.green}{bandage_heal[diff]}{col.reset} health.")
+        player.health += bandage_heal[diff]
+        print(f"You now have {col.green}{player.health}{col.reset} health.\n")
+
+        if random.randint(1,5) == 5:
+
+            if len(bandages) == 1:
+                print(f"{col.red}Your roll of bandage has run out!{col.reset}\n")
+                player.remove_item_from_inventory(bandage)
+                return
+            
+            print(f"{col.red}One of your rolls of bandage has run out!{col.reset}\n")
+            player.remove_item_from_inventory(bandage)
+
+
+
+def view_items(player):
+    clear()
+    print("Items:")
+
+    if len(player.inventory) == 0:
+        print(col.grey + "Empty" + col.reset)
+        return
+    
+    for item in player.inventory:
+        print(f"\n{col.lightblue}{item.name}{col.reset}")
+        print(f"{col.grey}{item.description}{col.reset}")
+
+
+def view_keys(player):
+    print("Keys:")
+
+    if len(player.keys) == 0:
+        print(col.grey + "Empty" + col.reset)
+
+        input("\nPress enter to continue...")
+        clear()
+        return
+
+    for key in player.keys:
+        print(f"\n{col.lightblue}{key.name}{col.reset}")
+        print(f"{col.grey}{key.description}{col.reset}")
+
+    input("\nPress enter to continue...")
+    clear()
+
+
+
+def set_difficulty():
+    print(f"Difficulties: \n{col.lightred}1. Easy \n2. Medium \n3. Hard \n4. Deadly {col.reset}")
+    diff = input("Enter the number of the difficulty you want to play at: ")
+
+    try:
+        int(diff)
+    except:
+        invalid_choice()
+        return 0
+    
+    if int(diff) < 1 or int(diff) > 4:
+        invalid_choice()
+        return 0
+    
+    clear()
+    return int(diff)
+
+
+
 def main(player):
-    current_room, player_health = load_game_state()
+    current_room, player_health, diff = load_game_state()
     player.health = player_health
     clear()
     
@@ -332,18 +434,13 @@ def main(player):
         current_room = landing_g
         start_time = time.time()
 
+        while diff == 0:
+            diff = set_difficulty()
+
     while True:
 
-        for item in player.inventory:
-            if item.name == "Bandage":
-                print(f"Your bandage heals you. It gives you {col.green}2{col.reset} health.")
-                player.health += 2
-                print(f"You now have {col.green}{player.health}{col.reset} health.\n")
-                if random.randint(1,5) == 5:
-                    print(f"{col.red}Your bandage has run out!{col.reset}\n")
-                    player.remove_item_from_inventory(item)
-        
-        monster_attack_player_system(current_room)
+        bandage_system(player.inventory, diff)
+        monster_attack_player_system(current_room, diff)
 
         print(f"{current_room.name}")
         print(col.grey + current_room.description + col.reset)
@@ -401,58 +498,22 @@ def main(player):
 
         # Interpret Input
         if choice == "1":
-            room_choice = input("Enter the number of the room you wish to go to: ")
-
-            try:
-                current_room.adjacent_rooms[int(room_choice)-1]
-            except:
-                clear()
-                print(f"{col.red}Invalid choice. Please try again.{col.reset}\n")
-            else:
-
-                room_choice = current_room.adjacent_rooms[int(room_choice)-1]
-                room_choice = room_choice.name
-                for i in rooms:
-                    if i.name.lower() == room_choice.lower():
-                        if i.locked and not player.has_key(i):
-                            clear()
-                            print(col.red + "The room is locked. You need a key to unlock it.\n" + col.reset)
-                            break
-                        else:
-                            current_room = i
-                            clear()
-                            break
+            current_room = room_system(current_room)
 
         elif choice == "2":
             item_system(current_room)
 
         elif choice == "3":
-            player_attack_monster_system(current_room)
+            player_attack_monster_system(current_room, diff)
 
         elif choice == "4":
-            clear()
-            print("Items:")
-            if len(player.inventory) > 0:
-                for item in player.inventory:
-                    print(f"\n{col.lightblue}{item.name}{col.reset}")
-                    print(f"{col.grey}{item.description}{col.reset}")
-            else:
-                print(col.grey + "Empty" + col.reset)
-
-            print("\nKeys:")
-            if len(player.keys) > 0:
-                for key in player.keys:
-                    print(f"\n{col.lightblue}{key.name}{col.reset}")
-                    print(f"{col.grey}{key.description}{col.reset}")
-            else:
-                print(col.grey + "Empty" + col.reset)
-
-            input("\nPress enter to continue...")
-            clear()
+            view_items(player)
+            print()
+            view_keys(player)
 
         elif choice == "5":
             clear()
-            save_game_state(current_room, player.health)  # Save player health instead of player_health
+            save_game_state(current_room, player.health, diff)  # Save player health instead of player_health
             print(col.lightblue + "Game saved. The program will close in 5 seconds.")
             time.sleep(5)
             break
